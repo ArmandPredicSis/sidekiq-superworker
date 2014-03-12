@@ -7,9 +7,9 @@ module Sidekiq
 
       def self.create(superjob_id, superworker_class_name, args, subjobs, options={})
         Superworker.debug "Superworker ##{superjob_id}: Create"
-        
+
         options ||= {}
-        
+
         # If sidekiq_monitor is being used, create a Sidekiq::Monitor::Job for the superjob
         if defined?(Sidekiq::Monitor)
           now = Time.now
@@ -24,6 +24,8 @@ module Sidekiq
             name: options[:name]
           )
         end
+
+        subjobs = Subjob.where(superjob_id: superjob_id, superworker_class: superworker_class_name)
 
         # Enqueue the first root-level subjob
         first_subjob = subjobs.select{ |subjob| subjob.parent_id.nil? }.first

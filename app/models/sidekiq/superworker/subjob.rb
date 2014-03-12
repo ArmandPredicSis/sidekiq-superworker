@@ -1,26 +1,16 @@
 module Sidekiq
   module Superworker
-    Subjob = Class.new(ActiveRecord::Base) if Superworker.active_record?
-
     class Subjob
+      include Mongoid::Document
+
       ATTRIBUTES = [
         :jid, :subjob_id, :superjob_id, :parent_id, :children_ids, :next_id,
         :subworker_class, :superworker_class, :arg_keys, :arg_values, :status,
         :descendants_are_complete, :meta
       ]
 
-      if Superworker.active_record?
-        attr_accessible *ATTRIBUTES if ActiveRecord::VERSION::MAJOR < 4
-
-        serialize :arg_keys
-        serialize :arg_values
-        serialize :children_ids
-        serialize :meta
-      elsif Superworker.mongoid?
-        include Mongoid::Document
-        ATTRIBUTES.each do |attr|
-          field attr
-        end
+      ATTRIBUTES.each do |attr|
+        field attr
       end
 
       validates_presence_of :subjob_id, :subworker_class, :superworker_class, :status
@@ -35,7 +25,7 @@ module Sidekiq
       end
 
       def children
-        relatives.where(parent_id: subjob_id).order(:subjob_id)
+        relatives.where(parent_id: subjob_id).order_by(:subjob_id => :desc)
       end
 
       def next

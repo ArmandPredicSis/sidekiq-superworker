@@ -25,11 +25,11 @@ module Sidekiq
         SubjobProcessor.complete(subjob) if subjob
       end
 
-      # Note: The job may've been created outside of sidekiq-superworker, so a nil return value
-      # for this method isn't necessarily problematic
+      # Note: The job may've been created outside of sidekiq-superworker, so a nil return value for
+      # this method isn't necessarily problematic
       def find_subjob_by_jid(jid)
         Superworker.debug "JID ##{jid}: Finding Subjob"
-        Subjob.find_by_jid(jid)
+        Subjob.where(jid: jid).first
       end
     end
   end

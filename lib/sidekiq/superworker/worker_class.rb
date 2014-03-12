@@ -18,7 +18,7 @@ module Sidekiq
 
         def initialize_superjob(arg_values)
           options = {}
-          
+
           # If an additional argument value is given, it's the superjob's options
           if (arg_values.length == @arg_keys.length + 1) && arg_values.last.is_a?(Hash)
             options = arg_values.last
@@ -58,8 +58,8 @@ module Sidekiq
             Sidekiq::Superworker::Subjob.import(subjobs)
             Sidekiq::Superworker::Subjob.where(superjob_id: @superjob_id).order(:subjob_id)
           else
-            Sidekiq::Superworker::Subjob.transaction do
-              Sidekiq::Superworker::Subjob.create(records)
+            records.each do |record|
+              Sidekiq::Superworker::Subjob.create(record)
             end
           end
         end
